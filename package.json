@@ -1,0 +1,25 @@
+{
+  "name": "grant-api",
+  "version": "1.0.0",
+  "description": "Grant API",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/latashalenus/Grant-API.git"
+  },
+  "dependencies": {
+    "express": "*",
+    "body-parser": "*",
+    "mongoose": "*"
+  },
+  "author": "Latasha Lenus",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/latashalenus/Grant-API/issues"
+  },
+  "homepage": "https://github.com/latashalenus/Grant-API#readme"
+}
