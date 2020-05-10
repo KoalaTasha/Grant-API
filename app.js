@@ -5,8 +5,6 @@ var mongoose = require('mongoose');
 
 app.use(bodyParser.json());
 
-Household = require('./models/household');
-
 // Connect to Mongoose
 mongoose.connect('mongodb://localhost/grant-api', {
     useNewUrlParser: true,
@@ -16,56 +14,18 @@ mongoose.connect('mongodb://localhost/grant-api', {
 
 var db = mongoose.connection;
 
+// Models
+Household = require('./models/household');
+
 // routes
+var householdRoute = require('./routes/householdRoute');
+app.use('/api/households', householdRoute);
+
+var grantRoute = require('./routes/grantRoute');
+app.use('/api/grants', grantRoute);
+
 app.get('/',  (req, res) => {
     res.send('hello world!!');
-});
-
-app.get('/api/households', (req, res) => {
-    Household.getHouseholds((err, households) => { 
-        if(err){
-            throw err;
-        }
-        res.json(households)
-    }); 
-});
-
-app.post('/api/households', (req, res) => {
-    var household = req.body;
-    Household.addHousehold(household,(err, household) => { 
-        if(err){
-            throw err;
-        }
-        res.json(household)
-    }); 
-});
-
-app.post('/api/households/:_id/familyMembers', (req, res) => {
-    var familyMember = req.body;
-    Household.addFamilyMembersByHouseId(req.params._id, familyMember,(err, familyMember) => { 
-        if(err){
-            throw err;
-        }
-        res.json(familyMember)
-    }); 
-});
-
-app.get('/api/households/:_id', (req, res) => {
-    Household.getHouseholdById(req.params._id, (err, household) => { 
-        if(err){
-            throw err;
-        }
-        res.json(household)
-    }); 
-});
-
-app.get('/api/households/:_id/familyMembers', (req, res) => {
-    Household.getFamilyMembersByHouseId(req.params._id, (err, household) => { 
-        if(err){
-            throw err;
-        }
-        res.json(household)
-    }); 
 });
 
 

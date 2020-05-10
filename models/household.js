@@ -28,8 +28,11 @@ var familyMembersSchema = new Schema({
 });
 
 var householdSchema = new Schema({
-    housingType: String,
-    familyMembers: [familyMembersSchema]
+    housingType: {
+        type: String,
+        required: true
+    },
+    familyMembers: [familyMembersSchema] // not required
 });
 
 // Allows model to be used in other files
@@ -56,21 +59,6 @@ module.exports.addFamilyMembersByHouseId = (id, familyMember, callback) => {
         {safe: true, upsert: true, new : true},
         callback
     );
-    // Household.findOneAndUpdate(id, familyMember, {upsert: true}, callback)
-    
-    // Household.update(
-    //     { _id: id },
-    //     { $push: { "familyMembers": familyMember } }
-    //  )
-
-    // Household.findById(id, callback).select("familyMembers").push(familyMember);
-    // Household.save(done);
-    // // Household.update(
-    //     { _id: id }, 
-    //     { $push: { familyMembers: familyMember } }
-
-    // );
-   
 }
 
 module.exports.addHousehold = (household, callback) => { 
