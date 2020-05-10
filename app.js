@@ -10,7 +10,8 @@ Household = require('./models/household');
 // Connect to Mongoose
 mongoose.connect('mongodb://localhost/grant-api', {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false
 } )
 
 var db = mongoose.connection;
