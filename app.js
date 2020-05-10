@@ -39,9 +39,27 @@ app.post('/api/households', (req, res) => {
     }); 
 });
 
+app.post('/api/households/:_id/familyMembers', (req, res) => {
+    var familyMember = req.body;
+    Household.addFamilyMembersByHouseId(req.params._id, familyMember,(err, familyMember) => { 
+        if(err){
+            throw err;
+        }
+        res.json(familyMember)
+    }); 
+});
 
-app.get('/api/households/:id', (req, res) => {
-    Household.getHouseholdById(req.params.id, (err, household) => { 
+app.get('/api/households/:_id', (req, res) => {
+    Household.getHouseholdById(req.params._id, (err, household) => { 
+        if(err){
+            throw err;
+        }
+        res.json(household)
+    }); 
+});
+
+app.get('/api/households/:_id/familyMembers', (req, res) => {
+    Household.getFamilyMembersByHouseId(req.params._id, (err, household) => { 
         if(err){
             throw err;
         }
@@ -50,9 +68,9 @@ app.get('/api/households/:id', (req, res) => {
 });
 
 
-app.post("/", (req, res) =>{
-    console.log(req.body);
-});
+// app.post("/", (req, res) =>{
+//     console.log(req.body);
+// });
 
 // listen to server
 app.listen(3000);

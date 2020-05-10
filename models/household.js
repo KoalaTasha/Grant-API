@@ -32,6 +32,7 @@ var householdSchema = new Schema({
     familyMembers: [familyMembersSchema]
 });
 
+// Allows model to be used in other files
 var Household = module.exports = mongoose.model("Household", householdSchema);
 
 
@@ -41,6 +42,35 @@ module.exports.getHouseholds = (callback,limit) => { //callback function to run 
 
 module.exports.getHouseholdById = (id, callback) => { 
     Household.findById(id, callback);
+}
+
+module.exports.getFamilyMembersByHouseId = (id, callback) => { 
+    Household.findById(id, callback).select("familyMembers");
+}
+
+module.exports.addFamilyMembersByHouseId = (id, familyMember, callback) => { 
+
+    Household.findByIdAndUpdate(
+        id,
+        {$push: {"familyMembers": familyMember}},
+        {safe: true, upsert: true, new : true},
+        callback
+    );
+    // Household.findOneAndUpdate(id, familyMember, {upsert: true}, callback)
+    
+    // Household.update(
+    //     { _id: id },
+    //     { $push: { "familyMembers": familyMember } }
+    //  )
+
+    // Household.findById(id, callback).select("familyMembers").push(familyMember);
+    // Household.save(done);
+    // // Household.update(
+    //     { _id: id }, 
+    //     { $push: { familyMembers: familyMember } }
+
+    // );
+   
 }
 
 module.exports.addHousehold = (household, callback) => { 
