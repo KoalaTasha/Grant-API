@@ -78,6 +78,49 @@ module.exports.addHousehold = (household, callback) => {
     Household.create(household, callback);
 }
 
+module.exports.testAgg = (callback) => { //test function
+    Household.aggregate([
+        {
+         $addFields: {
+           householdIncome: {$sum : "$familyMembers.annualIncome"},
+           numberFM: { $cond: { if: { $isArray: "$familyMembers" }, then: { $size: "$familyMembers" }, else: "NA"} }
+         }
+       }
+        ,{$unwind:"$familyMembers"}
+       ,{
+         $addFields: {
+    
+            "familyMembers.age": {
+               $let: {
+                   vars: {
+                      diff: {$subtract: [ new Date(), "$familyMembers.DOB" ] },
+                   },
+                   in: { $divide: [ "$$diff", (365 * 24*60*60*1000) ] }
+                }
+           }
+    
+         }
+       }
+    ,{ $match: { $and: [ { householdIncome: { $lt: 1100 }}, { "familyMembers.age": { $gt: 20 } } ] } }
+
+   
+   ,{
+     $group:{
+       _id: "$_id",
+       householdIncome : { $first: '$householdIncome' },
+       numberFM: {$first:'$numberFM'} ,
+       qualify: 
+       //{$mergeObjects: "$familyMembers" }   
+       {$push: {"FM": "$familyMembers"}}
+     }
+   }
+   
+       
+    ]).exec(callback);
+}
+
+
+
 /*
 var fms = [
     {name: 'win', gender:'F', martialStatus:false, occupationType:'student', DOB: Date.parse("2000-01-01")},

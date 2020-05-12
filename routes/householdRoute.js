@@ -36,7 +36,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/TEST', (req, res) => {
-    Household.getAggTEST((err, household) => { 
+    Household.testAgg((err, household) => { 
         if(err){
             throw err;
         }
