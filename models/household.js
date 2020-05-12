@@ -78,6 +78,51 @@ module.exports.addHousehold = (household, callback) => {
     Household.create(household, callback);
 }
 
+module.exports.testAggInput = (query, callback) => { //test function
+    Household.aggregate([
+        {
+         $addFields: {
+           householdIncome: {$sum : "$familyMembers.annualIncome"},
+           numberFM: { $cond: { if: { $isArray: "$familyMembers" }, then: { $size: "$familyMembers" }, else: "NA"} } //check
+         }
+       }
+        ,{$unwind:"$familyMembers"}
+       ,{
+         $addFields: {
+    
+            "familyMembers.age": {
+               $let: {
+                   vars: {
+                      diff: {$subtract: [ new Date(), "$familyMembers.DOB" ] },
+                   },
+                   in: { $divide: [ "$$diff", (365 * 24*60*60*1000) ] }
+                }
+           }
+    
+         }
+       }
+    // ,{ $match: { $and: [ { householdIncome: { $lt: 1100 }}, { "familyMembers.age": { $gt: 20 } } ] } }
+    ,{ $match: { householdIncome: { $lt: query.hh_income_lt }} }
+    ,{ $match:  { "familyMembers.age": { $gt: query.fm_age_gt } }} 
+    // ,{$match: { $or: [{ housingType: { $eq: 'LANDED' } }, 
+    //     { author: 'john' }] }}
+   // ,{ $match:  { housingType: { $eq: 'LANDED' } }} 
+   ,{
+     $group:{
+       _id: "$_id",
+       housingType: { $first: '$housingType' },
+       householdIncome : { $first: '$householdIncome' },
+       numberFM: {$first:'$numberFM'} ,
+       qualify: 
+       //{$mergeObjects: "$familyMembers" }   
+       {$push: {"FM": "$familyMembers"}}
+     }
+   }
+   
+       
+    ]).exec(callback);
+}
+
 module.exports.testAgg = (callback) => { //test function
     Household.aggregate([
         {
@@ -101,7 +146,9 @@ module.exports.testAgg = (callback) => { //test function
     
          }
        }
-    ,{ $match: { $and: [ { householdIncome: { $lt: 1100 }}, { "familyMembers.age": { $gt: 20 } } ] } }
+    // ,{ $match: { $and: [ { householdIncome: { $lt: 1100 }}, { "familyMembers.age": { $gt: 20 } } ] } }
+    ,{ $match: { householdIncome: { $lt: 1100 }} }
+    ,{ $match:  { "familyMembers.age": { $gt: 20 } }} 
 
    
    ,{
