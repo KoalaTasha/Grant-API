@@ -35,6 +35,16 @@ router.get('/', (req, res) => {
     }); 
 });
 
+router.get('/TEST', (req, res) => {
+    Household.getAggTEST((err, household) => { 
+        if(err){
+            throw err;
+        }
+        res.json(household)
+    }); 
+
+    // Household.getAggTEST();
+});
 
 router.get('/:_id', (req, res) => {
     Household.getHouseholdById(req.params._id, (err, household) => { 

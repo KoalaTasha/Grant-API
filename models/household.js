@@ -38,13 +38,26 @@ var householdSchema = new Schema({
 // Allows model to be used in other files
 var Household = module.exports = mongoose.model("Household", householdSchema);
 
-
 module.exports.getHouseholds = (callback,limit) => { //callback function to run after the action completed
     Household.find(callback).limit(limit);
 }
 
 module.exports.getHouseholdById = (id, callback) => { 
     Household.findById(id, callback);
+}
+
+module.exports.getTEST = (callback, limit) => { //test function
+    Household.find(
+        {housingType:{$eq:"HDB"}},
+        callback
+    ).limit(limit);
+}
+
+module.exports.getAggTEST = (callback) => { //test function
+    Household.aggregate([
+        { $match : { housingType : "HDB" } }
+    ]).exec(callback);
+
 }
 
 module.exports.getFamilyMembersByHouseId = (id, callback) => { 
