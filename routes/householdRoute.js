@@ -1,7 +1,17 @@
-
 var express = require("express");
 
 var router = express.Router();
+
+router.get('/help', (req, res) => {
+    var note = "All posts' content need to be written in body in JSON format \n\n"
+    var h1 = "VERB: GET, URL: /api/households -->  will get all households\n";
+    var h2 = "VERB: POST, URL: /api/households -->  add one household\n";
+    var h3 = "VERB: GET, URL: /api/households/~household_id~ -->  will get one household\n";
+    var h4 = "VERB: GET, URL: /api/households/~household_id~/familyMembers -->  will get one household's family members\n";
+    var h5 = "VERB: POST, URL: /api/households/~household_id~/familyMembers -->  add family members to one household\n";
+
+    res.send(note + h1 + h2 + h3 + h4 + h5 );
+});
 
 //POST
 router.post('/', (req, res) => {
@@ -33,17 +43,6 @@ router.get('/', (req, res) => {
         }
         res.json(households)
     }); 
-});
-
-router.get('/TEST', (req, res) => {
-    Household.testAgg((err, household) => { 
-        if(err){
-            throw err;
-        }
-        res.json(household)
-    }); 
-
-    // Household.getAggTEST();
 });
 
 router.get('/:_id', (req, res) => {

@@ -25,13 +25,11 @@ var grantRoute = require('./routes/grantRoute');
 app.use('/api/grants', grantRoute);
 
 app.get('/',  (req, res) => {
-    res.send('hello world!!');
+    var household = " Go to /api/households for editing or viewing of households \n";
+    var grants = "Go to /api/grants for query on eligible households for grants \n";
+
+    res.send(household+ grants + " \n for help add /help to the url");
 });
-
-
-// app.post("/", (req, res) =>{
-//     console.log(req.body);
-// });
 
 // listen to server
 app.listen(3000);

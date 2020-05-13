@@ -1,7 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-
 var familyMembersSchema = new Schema({
     name: {
         type: String,
@@ -16,11 +15,9 @@ var familyMembersSchema = new Schema({
         required: true
     },
     DOB: {
-        type: Date
-        // required: true
-        //todo: fix
+        type: Date,
+        required: true
     },
-
 
     martialStatus: Boolean,
     spouse: String,
@@ -32,7 +29,7 @@ var householdSchema = new Schema({
         type: String,
         required: true
     },
-    familyMembers: [familyMembersSchema] // not required
+    familyMembers: [familyMembersSchema] 
 });
 
 // Allows model to be used in other files
@@ -44,20 +41,6 @@ module.exports.getHouseholds = (callback,limit) => { //callback function to run 
 
 module.exports.getHouseholdById = (id, callback) => { 
     Household.findById(id, callback);
-}
-
-module.exports.getTEST = (callback, limit) => { //test function
-    Household.find(
-        {housingType:{$eq:"HDB"}},
-        callback
-    ).limit(limit);
-}
-
-module.exports.getAggTEST = (callback) => { //test function
-    Household.aggregate([
-        { $match : { housingType : "HDB" } }
-    ]).exec(callback);
-
 }
 
 module.exports.getFamilyMembersByHouseId = (id, callback) => { 
@@ -78,103 +61,58 @@ module.exports.addHousehold = (household, callback) => {
     Household.create(household, callback);
 }
 
-module.exports.testAggInput = (query, callback) => { //test function
+module.exports.getEligibleByInput = (query, callback) => { //test function
     Household.aggregate([
+        // ADD household income, num of FM(family members) 
         {
-         $addFields: {
-           householdIncome: {$sum : "$familyMembers.annualIncome"},
-           numberFM: { $cond: { if: { $isArray: "$familyMembers" }, then: { $size: "$familyMembers" }, else: "NA"} }, //check
-            // if ppl in the spouse list are in the family list, it means there is a least one couple live tgt
-           intersect: { $setIntersection: [ "$familyMembers.spouse", "$familyMembers.name" ] }
-           
-         }
-       }
-       ,{
-        $addFields: {
-            couple: { $cond: { if: { $ne: [ "$intersect", [] ] }, then: true, else: false} }
+            $addFields: {
+                householdIncome: {$sum : "$familyMembers.annualIncome"},
+                numberFM: { $cond: { if: { $isArray: "$familyMembers" }, then: { $size: "$familyMembers" }, else: "NA"} }, //todo
+                // if ppl in the spouse list are in the family list, it means there is a least one couple live tgt
+                intersect: { $setIntersection: [ "$familyMembers.spouse", "$familyMembers.name" ] }
+            }
+        },
+        // ADD if house has couple 
+        {
+            $addFields: {
+                couple: { $cond: { if: { $ne: [ "$intersect", [] ] }, then: true, else: false} }
+            }
+        },
+        // household without any FMs will be excluded from this point on
+        {$unwind:"$familyMembers"},
+        // ADD FM(family members) age relative to today 
+        {
+            $addFields: {
+                "familyMembers.age": {
+                    $let: {
+                        vars: {
+                            diff: {$subtract: [ new Date(), "$familyMembers.DOB" ] },
+                        },
+                        in: { $divide: [ "$$diff", (365 * 24*60*60*1000) ] }
+                    }
+                }
+            }
+        },
+        // matches based on input query
+        { $match: { householdIncome: { $lt: query.hh_income_lt }} },
+        { $match:  { "familyMembers.age": { $gt: query.fm_age_gt } }},
+        { $match:  { "familyMembers.age": { $lt: query.fm_age_lt } }}, 
+        { $match:  { housingType: query.house_type }}, 
+        { $match:  { couple: query.has_couple }}, 
+        // Present relevant infomation 
+        {
+            $group:{
+                _id: "$_id",
+                couple: { $first: '$couple' },
+                housingType: { $first: '$housingType' },
+                householdIncome : { $first: '$householdIncome' },
+                numberFM: {$first:'$numberFM'} ,
+                qualifyingFM: {$addToSet:"$familyMembers"}
+            }
         }
-      }
-        ,{$unwind:"$familyMembers"}
-       ,{
-         $addFields: {
-    
-            "familyMembers.age": {
-               $let: {
-                   vars: {
-                      diff: {$subtract: [ new Date(), "$familyMembers.DOB" ] },
-                   },
-                   in: { $divide: [ "$$diff", (365 * 24*60*60*1000) ] }
-                }
-           }
-    
-         }
-       }
-    ,{ $match: { householdIncome: { $lt: query.hh_income_lt }} }
-    ,{ $match:  { "familyMembers.age": { $gt: query.fm_age_gt } }} 
-    ,{ $match:  { "familyMembers.age": { $lt: query.fm_age_lt } }} 
-   ,{ $match:  { housingType: query.house_type }} 
-   ,{ $match:  { couple: query.has_couple }} 
    
-   ,{
-     $group:{
-       _id: "$_id",
-       couple: { $first: '$couple' },
-       housingType: { $first: '$housingType' },
-       householdIncome : { $first: '$householdIncome' },
-       numberFM: {$first:'$numberFM'} ,
-       qualify: 
-       //{$mergeObjects: "$familyMembers" }   
-       {$push: {"FM": "$familyMembers"}}
-     }
-   }
-   
-       
     ]).exec(callback);
 }
-
-module.exports.testAgg = (callback) => { //test function
-    Household.aggregate([
-        {
-         $addFields: {
-           householdIncome: {$sum : "$familyMembers.annualIncome"},
-           numberFM: { $cond: { if: { $isArray: "$familyMembers" }, then: { $size: "$familyMembers" }, else: "NA"} }
-         }
-       }
-        ,{$unwind:"$familyMembers"}
-       ,{
-         $addFields: {
-    
-            "familyMembers.age": {
-               $let: {
-                   vars: {
-                      diff: {$subtract: [ new Date(), "$familyMembers.DOB" ] },
-                   },
-                   in: { $divide: [ "$$diff", (365 * 24*60*60*1000) ] }
-                }
-           }
-    
-         }
-       }
-    // ,{ $match: { $and: [ { householdIncome: { $lt: 1100 }}, { "familyMembers.age": { $gt: 20 } } ] } }
-    ,{ $match: { householdIncome: { $lt: 1100 }} }
-    ,{ $match:  { "familyMembers.age": { $gt: 20 } }} 
-
-   
-   ,{
-     $group:{
-       _id: "$_id",
-       householdIncome : { $first: '$householdIncome' },
-       numberFM: {$first:'$numberFM'} ,
-       qualify: 
-       //{$mergeObjects: "$familyMembers" }   
-       {$push: {"FM": "$familyMembers"}}
-     }
-   }
-   
-       
-    ]).exec(callback);
-}
-
 
 
 /*
