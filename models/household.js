@@ -83,9 +83,17 @@ module.exports.testAggInput = (query, callback) => { //test function
         {
          $addFields: {
            householdIncome: {$sum : "$familyMembers.annualIncome"},
-           numberFM: { $cond: { if: { $isArray: "$familyMembers" }, then: { $size: "$familyMembers" }, else: "NA"} } //check
+           numberFM: { $cond: { if: { $isArray: "$familyMembers" }, then: { $size: "$familyMembers" }, else: "NA"} }, //check
+            // if ppl in the spouse list are in the family list, it means there is a least one couple live tgt
+           intersect: { $setIntersection: [ "$familyMembers.spouse", "$familyMembers.name" ] }
+           
          }
        }
+       ,{
+        $addFields: {
+            couple: { $cond: { if: { $ne: [ "$intersect", [] ] }, then: true, else: false} }
+        }
+      }
         ,{$unwind:"$familyMembers"}
        ,{
          $addFields: {
@@ -101,15 +109,16 @@ module.exports.testAggInput = (query, callback) => { //test function
     
          }
        }
-    // ,{ $match: { $and: [ { householdIncome: { $lt: 1100 }}, { "familyMembers.age": { $gt: 20 } } ] } }
     ,{ $match: { householdIncome: { $lt: query.hh_income_lt }} }
     ,{ $match:  { "familyMembers.age": { $gt: query.fm_age_gt } }} 
-    // ,{$match: { $or: [{ housingType: { $eq: 'LANDED' } }, 
-    //     { author: 'john' }] }}
-   // ,{ $match:  { housingType: { $eq: 'LANDED' } }} 
+    ,{ $match:  { "familyMembers.age": { $lt: query.fm_age_lt } }} 
+   ,{ $match:  { housingType: query.house_type }} 
+   ,{ $match:  { couple: query.has_couple }} 
+   
    ,{
      $group:{
        _id: "$_id",
+       couple: { $first: '$couple' },
        housingType: { $first: '$housingType' },
        householdIncome : { $first: '$householdIncome' },
        numberFM: {$first:'$numberFM'} ,
