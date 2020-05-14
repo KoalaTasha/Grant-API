@@ -14,6 +14,14 @@ mongoose.connect('mongodb://localhost/grant-api', {
 
 var db = mongoose.connection;
 
+// check if input JSON is valid JSON
+app.use((err, req, res, next) => {  
+    if (err instanceof SyntaxError) return res.status(400).send(JSON.stringify({
+        error: "Invalid JSON"
+    }))
+    res.status(500).send();
+  });
+
 // Models
 Household = require('./models/household');
 

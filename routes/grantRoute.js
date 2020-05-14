@@ -31,17 +31,17 @@ function findOptions(options) {  // format input into a query
 function sanitizeInputs(in_query, query){
     if (in_query.fm_age_gt) 
         query.fm_age_gt = Number(in_query.fm_age_gt);   
-        if (Array.isArray(in_query.fm_age_gt))  // incase multiple of this feild entered, just take the first one
+        if (Array.isArray(in_query.fm_age_gt))  // incase multiple of this field entered, just take the first one
             query.fm_age_gt = Number(in_query.fm_age_gt[0]);
 
     if (in_query.fm_age_lt) 
         query.fm_age_lt = Number(in_query.fm_age_lt);
-        if (Array.isArray(in_query.fm_age_lt))  // incase multiple of this feild entered, just take the first one
+        if (Array.isArray(in_query.fm_age_lt))  // incase multiple of this field entered, just take the first one
             query.fm_age_lt = Number(in_query.fm_age_lt[0]);
 
     if (in_query.hh_income_lt) 
         query.hh_income_lt = Number(in_query.hh_income_lt);
-        if(Array.isArray(in_query.hh_income_lt))
+        if(Array.isArray(in_query.hh_income_lt))  // incase multiple of this field entered, just take the first one
             query.hh_income_lt = Number(in_query.hh_income_lt[0]);
 
     if (in_query.house_type) query.house_type = findOptions(in_query.house_type);
@@ -68,7 +68,7 @@ router.get('/', (req, res) => {
         query = sanitizeInputs(req.query, query)
         Household.getEligibleByInput(query , (err, household) => { 
             if(err){
-                throw err;
+                res.send("Please enter valid query format \n\n Error: \n" + err);
             }
             res.json(household)
         }); 

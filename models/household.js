@@ -12,7 +12,8 @@ var familyMembersSchema = new Schema({
     },
     occupationType: {
         type: String,
-        required: true
+        required: true,
+        default: "unemployed"
     },
     DOB: {
         type: Date,
@@ -53,7 +54,6 @@ module.exports.getFamilyMembersByHouseId = (id, callback) => {
 }
 
 module.exports.addFamilyMembersByHouseId = (id, familyMember, callback) => { 
-
     Household.findByIdAndUpdate(
         id,
         {$push: {"familyMembers": familyMember}},
@@ -128,25 +128,3 @@ module.exports.getEligibleByInput = (query, callback) => { //test function
    
     ]).exec(callback);
 }
-
-
-/*
-var fms = [
-    {name: 'win', gender:'F', martialStatus:false, occupationType:'student', DOB: Date.parse("2000-01-01")},
-    {name: 'bob', gender:'M', martialStatus:false, occupationType:'unemployed', DOB: Date.parse("1981-01-01")},
-];
-
-var arr = [{ housingType:'HDB', familyMembers: fms}];
-Household.insertMany(arr, function(err) {
-  if (err) throw err;
-
-  console.log('Multiple HOUSE created!');
-
-  // get all the subjects
-  Household.find({}, function(err, hhs) {
-        if(err) throw err;
-
-        console.log(JSON.stringify(hhs, null, 4))
-  });
-});
-*/
