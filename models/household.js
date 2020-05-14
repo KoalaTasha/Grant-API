@@ -43,6 +43,11 @@ module.exports.getHouseholdById = (id, callback) => {
     Household.findById(id, callback);
 }
 
+module.exports.delHouseholdById = (id, callback) => { 
+    var query = {_id: id};
+    Household.remove(query, callback);
+}
+
 module.exports.getFamilyMembersByHouseId = (id, callback) => { 
     Household.findById(id, callback).select("familyMembers");
 }
@@ -53,6 +58,16 @@ module.exports.addFamilyMembersByHouseId = (id, familyMember, callback) => {
         id,
         {$push: {"familyMembers": familyMember}},
         {safe: true, upsert: true, new : true},
+        callback
+    );
+}
+
+
+module.exports.delFamilyMembersByHouseId = (id, FM_id, callback) => { 
+    Household.update(
+        {_id: id},
+        {$pull: {"familyMembers":{ _id:FM_id }}},
+        { new : true},
         callback
     );
 }
