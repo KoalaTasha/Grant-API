@@ -7,11 +7,11 @@ var router = express.Router();
 router.get('/help', (req, res) => {
 // example format for query
     var format = "format: /api/grants?[field: value]&[field: value] \n \n";
-    var g1 = "Student Encouragement Bonus:  /api/grants?fm_age_lt=16&hh_income_lt=150000 \n";
-    var g2 = "Family Togetherness Scheme:  /api/grants?fm_age_lt=16&has_couple=true \n ";
-    var g3 = "Elder Bonus:  /api/grants?house_type=HDB&fm_age_gt=50 \n "
-    var g4 = "Baby Sunshine Grant:  /api/grants?fm_age_lt=5 \n "
-    var g5 = "YOLO GST Grant:  /api/grants?house_type=HDB&hh_income_lt=100000 \n "
+    var g1 = "Student Encouragement Bonus:  http://localhost:3000/api/grants?fm_age_lt=16&hh_income_lt=150000 \n";
+    var g2 = "Family Togetherness Scheme:  http://localhost:3000/api/grants?fm_age_lt=16&has_couple=true \n ";
+    var g3 = "Elder Bonus:  http://localhost:3000/api/grants?house_type=HDB&fm_age_gt=50 \n "
+    var g4 = "Baby Sunshine Grant:  http://localhost:3000/api/grants?fm_age_lt=5 \n "
+    var g5 = "YOLO GST Grant:  http://localhost:3000/api/grants?house_type=HDB&hh_income_lt=100000 \n "
     
     res.send(format+ 'Example grants: \n' + g1 + g2 + g3 + g4 + g5 );
 });
@@ -61,7 +61,7 @@ router.get('/', (req, res) => {
     var query = {hh_income_lt: Infinity, fm_age_lt: Infinity, fm_age_gt: 0, has_couple:findOptions([]), house_type: findOptions([]) };
 
     if (Object.keys(req.query).length == 0) {
-        res.send("go to api/grants/help for help and examples" +"\n  available fields : "+ Object.keys(query));  // todo fix formatting
+        res.send("go to http://localhost:3000/api/grants/help for help and examples" +"\n  available fields : "+ Object.keys(query));  // todo fix formatting
         
     } else {
         //Sanitize the query before passing it to db

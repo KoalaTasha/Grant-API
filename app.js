@@ -33,8 +33,8 @@ var grantRoute = require('./routes/grantRoute');
 app.use('/api/grants', grantRoute);
 
 app.get('/',  (req, res) => {
-    var household = " Go to /api/households for editing or viewing of households \n";
-    var grants = "Go to /api/grants for query on eligible households for grants \n";
+    var household = " Go to http://localhost:3000/api/households for editing or viewing of households \n";
+    var grants = "Go to http://localhost:3000/api/grants for query on eligible households for grants \n";
 
     res.send(household+ grants + " \n for help add /help to the url");
 });
