@@ -45,7 +45,7 @@ module.exports.getHouseholdById = (id, callback) => {
 
 module.exports.delHouseholdById = (id, callback) => { 
     var query = {_id: id};
-    Household.remove(query, callback);
+    Household.deleteOne(query, callback);
 }
 
 module.exports.getFamilyMembersByHouseId = (id, callback) => { 
@@ -64,7 +64,7 @@ module.exports.addFamilyMembersByHouseId = (id, familyMember, callback) => {
 
 
 module.exports.delFamilyMembersByHouseId = (id, FM_id, callback) => { 
-    Household.update(
+    Household.updateOne(
         {_id: id},
         {$pull: {"familyMembers":{ _id:FM_id }}},
         { new : true},
