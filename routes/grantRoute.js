@@ -44,10 +44,10 @@ function sanitizeInputs(in_query, query){
         if(Array.isArray(in_query.hh_income_lt))  // incase multiple of this field entered, just take the first one
             query.hh_income_lt = Number(in_query.hh_income_lt[0]);
 
-    if (in_query.house_type) query.house_type = findOptions(in_query.house_type);
+    if (in_query.house_type) query.house_type = findOptions(in_query.house_type);  //If multiple entries entered, will find households that match one of the options
 
-    if (in_query.has_couple) 
-        if(in_query.has_couple == "true")
+    if (in_query.has_couple)    // only accept "true" of "false"
+        if(in_query.has_couple == "true")  
             query.has_couple = findOptions(true);
         if(in_query.has_couple == "false")
             query.has_couple = findOptions(false);
@@ -57,11 +57,11 @@ function sanitizeInputs(in_query, query){
 
 // '/api/grants'
 router.get('/', (req, res) => {
-    // default query
+    // default query, that doesn't filter anything
     var query = {hh_income_lt: Infinity, fm_age_lt: Infinity, fm_age_gt: 0, has_couple:findOptions([]), house_type: findOptions([]) };
 
-    if (Object.keys(req.query).length == 0) {
-        res.send("go to http://localhost:3000/api/grants/help for help and examples" +"\n  available fields : "+ Object.keys(query));  // todo fix formatting
+    if (Object.keys(req.query).length == 0) { // if no inputs provided for query
+        res.send("go to http://localhost:3000/api/grants/help for help and examples" +"\n  available fields : "+ Object.keys(query));  
         
     } else {
         //Sanitize the query before passing it to db

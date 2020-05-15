@@ -25,6 +25,8 @@ function jsonFormatCorrect(inp, format) {
  }
 
 //POST
+
+// add household
 router.post('/', (req, res) => {
     var household = req.body;
     Household.addHousehold(household,(err, household) => { 
@@ -35,15 +37,15 @@ router.post('/', (req, res) => {
     }); 
 });
 
+// add a family member to household with ID = _id
 router.post('/:_id/familyMembers', (req, res) => {
     var familyMember = req.body;
-    // crude check that input is in correct
-    var formatCorrect = jsonFormatCorrect(familyMember, '{ "name":"","gender":"", "DOB":""}');
+    var formatCorrect = jsonFormatCorrect(familyMember, '{ "name":"","gender":"", "DOB":""}'); // crude check that input is in correct
 
     Household.getHouseholdById(req.params._id, (err, household) => { 
-        if(err || household == null){
+        if(err || household == null){   // check if household exists
             res.send("Please enter valid household ID");
-        } else if (formatCorrect){
+        } else if (formatCorrect){  // If household exists, check if JSON format is correct, then add FM
             Household.addFamilyMembersByHouseId(req.params._id, familyMember,(err1, familyMember) => { 
                 if(err1){
                     res.send("Please enter in JSON format, with valid household ID \n\n Error: \n" + err);
@@ -58,6 +60,8 @@ router.post('/:_id/familyMembers', (req, res) => {
 
 
 //DEL
+
+// Delete household with ID = _id
 router.delete('/:_id', (req, res) => {
     Household.delHouseholdById(req.params._id,(err, familyMember) => { 
         if(err){
@@ -67,6 +71,7 @@ router.delete('/:_id', (req, res) => {
     }); 
 });
 
+// Del family member with ID = _idFM from household with ID = _id
 router.delete('/:_id/familyMembers/:_idFM', (req, res) => {
     Household.delFamilyMembersByHouseId(req.params._id,req.params._idFM, (err, household) => { 
         if(err){
@@ -77,28 +82,32 @@ router.delete('/:_id/familyMembers/:_idFM', (req, res) => {
 });
 
 //GET
+
+// Get all households and family members in each household
 router.get('/', (req, res) => {
     Household.getHouseholds((err, households) => { 
-        // if(err){
-        //     res.send("");
-        // }
+        if(err){
+            res.send("Could not get all Households \n\n Error: \n" + err);
+        }
         res.json(households)
     }); 
 });
 
+// Get household with ID = _id and family members in that household
 router.get('/:_id', (req, res) => {
     Household.getHouseholdById(req.params._id, (err, household) => { 
         if(err){
-            res.send("Please enter valid household ID");
+            res.send("Please enter valid household ID \n\n Error: \n" + err);
         }
         res.json(household)
     }); 
 });
 
+// Get family members in household with ID = _id 
 router.get('/:_id/familyMembers', (req, res) => {
     Household.getFamilyMembersByHouseId(req.params._id, (err, household) => { 
         if(err){
-            res.send("Please enter valid household ID");
+            res.send("Please enter valid household ID \n\n Error: \n" + err);
         }
         res.json(household)
     }); 

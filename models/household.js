@@ -36,6 +36,7 @@ var householdSchema = new Schema({
 // Allows model to be used in other files
 var Household = module.exports = mongoose.model("Household", householdSchema);
 
+// GET
 module.exports.getHouseholds = (callback,limit) => { //callback function to run after the action completed
     Household.find(callback).limit(limit);
 }
@@ -44,13 +45,13 @@ module.exports.getHouseholdById = (id, callback) => {
     Household.findById(id, callback);
 }
 
-module.exports.delHouseholdById = (id, callback) => { 
-    var query = {_id: id};
-    Household.deleteOne(query, callback);
-}
-
 module.exports.getFamilyMembersByHouseId = (id, callback) => { 
     Household.findById(id, callback).select("familyMembers");
+}
+
+//ADD
+module.exports.addHousehold = (household, callback) => { 
+    Household.create(household, callback);
 }
 
 module.exports.addFamilyMembersByHouseId = (id, familyMember, callback) => { 
@@ -62,6 +63,11 @@ module.exports.addFamilyMembersByHouseId = (id, familyMember, callback) => {
     );
 }
 
+//DEL
+module.exports.delHouseholdById = (id, callback) => { 
+    var query = {_id: id};
+    Household.deleteOne(query, callback);
+}
 
 module.exports.delFamilyMembersByHouseId = (id, FM_id, callback) => { 
     Household.updateOne(
@@ -72,9 +78,7 @@ module.exports.delFamilyMembersByHouseId = (id, FM_id, callback) => {
     );
 }
 
-module.exports.addHousehold = (household, callback) => { 
-    Household.create(household, callback);
-}
+
 
 module.exports.getEligibleByInput = (query, callback) => { //test function
     Household.aggregate([
@@ -82,7 +86,7 @@ module.exports.getEligibleByInput = (query, callback) => { //test function
         {
             $addFields: {
                 householdIncome: {$sum : "$familyMembers.annualIncome"},
-                numberFM: { $cond: { if: { $isArray: "$familyMembers" }, then: { $size: "$familyMembers" }, else: "NA"} }, //todo
+                numberFM: { $cond: { if: { $isArray: "$familyMembers" }, then: { $size: "$familyMembers" }, else: "NA"} },
                 // if ppl in the spouse list are in the family list, it means there is a least one couple live tgt
                 intersect: { $setIntersection: [ "$familyMembers.spouse", "$familyMembers.name" ] }
             }
